@@ -1,17 +1,4 @@
-import { z } from "zod";
 import { createDirectus, rest, staticToken } from "@directus/sdk";
-
-const directusEnvSchema = z.object({
-  DIRECTUS_URL: z.string().url(),
-  DIRECTUS_TOKEN: z.string().optional().default(""),
-});
-
-const directusEnv = directusEnvSchema.parse({
-  DIRECTUS_URL: process.env.DIRECTUS_URL,
-  DIRECTUS_TOKEN: process.env.DIRECTUS_TOKEN,
-});
-
-// CMS-Umgebungswerte werden beim Modulladen validiert, um bei Fehlkonfiguration frueh zu scheitern.
 
 export interface Room {
   id: string;
@@ -88,11 +75,17 @@ export interface DirectusSchema {
   booking_rooms: BookingRoom[];
 }
 
-const directusBaseClient = createDirectus<DirectusSchema>(
-  directusEnv.DIRECTUS_URL,
-).with(rest());
+function getDirectusClient() {
+  const url = process.env.DIRECTUS_URL;
+  const token = process.env.DIRECTUS_TOKEN;
 
-// Token ist optional, damit Public-Read-Setups ohne Auth laufen koennen.
-export const directus = directusEnv.DIRECTUS_TOKEN
-  ? directusBaseClient.with(staticToken(directusEnv.DIRECTUS_TOKEN))
-  : directusBaseClient;
+  if (!url) {
+    throw new Error("DIRECTUS_URL is not set");
+  }
+
+  const baseClient = createDirectus<DirectusSchema>(url).with(rest());
+
+  return token ? baseClient.with(staticToken(token)) : baseClient;
+}
+
+export const directus = getDirectusClient();
