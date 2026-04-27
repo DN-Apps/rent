@@ -181,7 +181,7 @@ export default function BookingWizard({
     if (step === 2) {
       if (selectedRooms.length === 0) {
         form.setError("rooms", {
-          message: "Bitte mindestens ein Zimmer auswählen.",
+          message: "Bitte mindestens ein Zimmer auswï¿½hlen.",
         });
         return;
       }
