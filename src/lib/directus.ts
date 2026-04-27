@@ -1,4 +1,10 @@
-import { createDirectus, rest, staticToken } from "@directus/sdk";
+import {
+  createDirectus,
+  rest,
+  staticToken,
+  DirectusClient,
+  RestClient,
+} from "@directus/sdk";
 
 export interface Room {
   id: string;
@@ -75,7 +81,14 @@ export interface DirectusSchema {
   booking_rooms: BookingRoom[];
 }
 
-function getDirectusClient() {
+export type AppDirectusClient = DirectusClient<DirectusSchema> &
+  RestClient<DirectusSchema>;
+
+let _client: AppDirectusClient | null = null;
+
+export function getDirectus(): AppDirectusClient {
+  if (_client) return _client;
+
   const url = process.env.DIRECTUS_URL;
   const token = process.env.DIRECTUS_TOKEN;
 
@@ -84,8 +97,15 @@ function getDirectusClient() {
   }
 
   const baseClient = createDirectus<DirectusSchema>(url).with(rest());
+  _client = (token
+    ? baseClient.with(staticToken(token))
+    : baseClient) as unknown as AppDirectusClient;
 
-  return token ? baseClient.with(staticToken(token)) : baseClient;
+  return _client;
 }
 
-export const directus = getDirectusClient();
+export const directus = new Proxy({} as AppDirectusClient, {
+  get(_target, prop) {
+    return (getDirectus() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
