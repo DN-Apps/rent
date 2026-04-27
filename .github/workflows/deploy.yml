@@ -2,7 +2,7 @@ name: Build & Deploy Rent App
 
 on:
   push:
-    branches: [staging]
+    branches: [qa]
   workflow_dispatch:
 
 env:
