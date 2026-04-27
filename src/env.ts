@@ -1,4 +1,3 @@
-import "server-only";
 import { z } from "zod";
 
 const nonEmptyTrimmed = z.string().trim().min(1);
@@ -48,28 +47,33 @@ if (!publicParsed.success) {
   );
 }
 
-const serverParsed = serverEnvSchema.safeParse({
-  DIRECTUS_URL: process.env.DIRECTUS_URL,
-  DIRECTUS_TOKEN: process.env.DIRECTUS_TOKEN,
-  TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
-  MAIL_HOST: process.env.MAIL_HOST,
-  MAIL_PORT: process.env.MAIL_PORT,
-  MAIL_USER: process.env.MAIL_USER,
-  MAIL_PASS: process.env.MAIL_PASS,
-  MAIL_FROM: process.env.MAIL_FROM,
-  MAIL_CONTACT_FROM: process.env.MAIL_CONTACT_FROM,
-  MAIL_TO: process.env.MAIL_TO,
-  MAIL_BOOKING_TO: process.env.MAIL_BOOKING_TO,
-  MAIL_CONTACT_TO: process.env.MAIL_CONTACT_TO,
-});
+export const publicEnv = publicParsed.data;
 
-if (!serverParsed.success) {
-  throw new Error(
-    `Invalid server environment variables: ${serverParsed.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join(", ")}`,
-  );
+export function getServerEnv() {
+  const serverParsed = serverEnvSchema.safeParse({
+    DIRECTUS_URL: process.env.DIRECTUS_URL,
+    DIRECTUS_TOKEN: process.env.DIRECTUS_TOKEN,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    MAIL_HOST: process.env.MAIL_HOST,
+    MAIL_PORT: process.env.MAIL_PORT,
+    MAIL_USER: process.env.MAIL_USER,
+    MAIL_PASS: process.env.MAIL_PASS,
+    MAIL_FROM: process.env.MAIL_FROM,
+    MAIL_CONTACT_FROM: process.env.MAIL_CONTACT_FROM,
+    MAIL_TO: process.env.MAIL_TO,
+    MAIL_BOOKING_TO: process.env.MAIL_BOOKING_TO,
+    MAIL_CONTACT_TO: process.env.MAIL_CONTACT_TO,
+  });
+
+  if (!serverParsed.success) {
+    throw new Error(
+      `Invalid server environment variables: ${serverParsed.error.issues
+        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+        .join(", ")}`,
+    );
+  }
+
+  return serverParsed.data;
 }
 
-export const publicEnv = publicParsed.data;
-export const env = serverParsed.data;
+export const env = getServerEnv;
