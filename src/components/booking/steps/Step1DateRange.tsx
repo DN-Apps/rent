@@ -118,7 +118,7 @@ export default function Step1DateRange({
               setFromDate(parsed);
               setNextPickerTarget("to");
             }}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="block w-full max-w-full min-w-0 box-border appearance-none rounded-lg border border-zinc-300 px-3 py-2 text-sm"
           />
         </label>
 
@@ -134,7 +134,7 @@ export default function Step1DateRange({
               setToDate(parsed);
               setNextPickerTarget("from");
             }}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            className="block w-full max-w-full min-w-0 box-border appearance-none rounded-lg border border-zinc-300 px-3 py-2 text-sm"
           />
         </label>
       </div>
@@ -203,7 +203,7 @@ export default function Step1DateRange({
             fontWeight: 400,
           },
         }}
-        className="rounded-xl border border-zinc-200 p-4"
+        className="w-full max-w-full overflow-hidden rounded-xl border border-zinc-200 p-2 sm:p-4 [--rdp-day-width:2.15rem] [--rdp-day-height:2.15rem] [--rdp-day_button-width:2.15rem] [--rdp-day_button-height:2.15rem] sm:[--rdp-day-width:2.45rem] sm:[--rdp-day-height:2.45rem] sm:[--rdp-day_button-width:2.45rem] sm:[--rdp-day_button-height:2.45rem]"
       />
       <p className="text-xs text-zinc-500">
         {t("next_calendar_target", {
