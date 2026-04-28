@@ -16,7 +16,9 @@ function getAssetId(image: GallerySlide["image"]): string | null {
 }
 
 function getAssetUrl(fileId: string): string | null {
-  const baseUrl = process.env.DIRECTUS_URL?.replace(/\/$/, "");
+  const baseUrl = (
+    process.env.DIRECTUS_ASSET_BASE_URL || process.env.DIRECTUS_URL
+  )?.replace(/\/$/, "");
   if (!baseUrl) return null;
   return `${baseUrl}/assets/${fileId}`;
 }

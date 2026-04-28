@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const nonEmptyTrimmed = z.string().trim().min(1);
 const optionalTrimmed = z.string().trim().optional().default("");
+const optionalUrl = z.string().trim().url().optional().default("");
 const mailPortSchema = z
   .string()
   .trim()
@@ -21,6 +22,7 @@ const publicEnvSchema = z.object({
 
 const serverEnvSchema = z.object({
   DIRECTUS_URL: z.string().trim().url("DIRECTUS_URL must be a valid URL"),
+  DIRECTUS_ASSET_BASE_URL: optionalUrl,
   DIRECTUS_TOKEN: optionalTrimmed,
   TURNSTILE_SECRET_KEY: nonEmptyTrimmed,
   MAIL_HOST: nonEmptyTrimmed,
@@ -52,6 +54,7 @@ export const publicEnv = publicParsed.data;
 export function getServerEnv() {
   const serverParsed = serverEnvSchema.safeParse({
     DIRECTUS_URL: process.env.DIRECTUS_URL,
+    DIRECTUS_ASSET_BASE_URL: process.env.DIRECTUS_ASSET_BASE_URL,
     DIRECTUS_TOKEN: process.env.DIRECTUS_TOKEN,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
     MAIL_HOST: process.env.MAIL_HOST,
