@@ -53,6 +53,21 @@ const corsHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'standalone',
+    images: {
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "cms.staging.ned-it.de",
+                pathname: "/assets/**",
+            },
+            {
+                protocol: "http",
+                hostname: "localhost",
+                port: "8055",
+                pathname: "/assets/**",
+            },
+        ],
+    },
     async headers() {
         return [
             {

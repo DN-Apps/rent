@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { getGallerySlides } from "@/lib/gallery";
 import { getAmenities } from "@/lib/rooms";
 import Slideshow from "@/components/ui/Slideshow";
 import AmenityIcon from "@/components/ui/AmenityIcon";
@@ -39,17 +40,24 @@ export default async function HomePage({ params }: HomePageProps) {
   const t = await getTranslations({ locale: params.locale, namespace: "home" });
 
   let amenities: Awaited<ReturnType<typeof getAmenities>> = [];
+  let gallerySlides: Awaited<ReturnType<typeof getGallerySlides>> = [];
   try {
     amenities = await getAmenities();
   } catch {
     // Directus kann beim Build nicht verfuegbar sein – ohne Ausstattungen rendern
   }
 
+  try {
+    gallerySlides = await getGallerySlides();
+  } catch {
+    // Ohne Gallery-Daten auf die eingebauten Default-Slides zurueckfallen.
+  }
+
   return (
     <main>
       {/* Hero-Bereich / Slideshow */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-10 pb-12">
-        <Slideshow />
+        <Slideshow slides={gallerySlides} />
         <div className="mt-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl">
             {t("title")}

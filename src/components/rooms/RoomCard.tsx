@@ -14,7 +14,7 @@ interface RoomCardProps {
 
 const ROOM_IMAGES: StaticImageData[] = [room1, room2, room3];
 
-function getRoomImage(room: Room): StaticImageData {
+function getFallbackRoomImage(room: Room): StaticImageData {
   if (typeof room.sort === "number" && room.sort >= 1 && room.sort <= 3) {
     return ROOM_IMAGES[room.sort - 1];
   }
@@ -27,9 +27,28 @@ function getRoomImage(room: Room): StaticImageData {
   return room1;
 }
 
+function getDirectusImageId(room: Room): string | null {
+  const image = room.image;
+  if (!image) return null;
+  if (typeof image === "string") return image;
+  if (typeof image === "object" && typeof image.id === "string")
+    return image.id;
+  return null;
+}
+
+function getDirectusAssetUrl(fileId: string): string | null {
+  const baseUrl = process.env.DIRECTUS_URL?.replace(/\/$/, "");
+  if (!baseUrl) return null;
+  return `${baseUrl}/assets/${fileId}`;
+}
+
 export default function RoomCard({ room, locale }: RoomCardProps) {
   const t = useTranslations("rooms");
-  const imageSrc = getRoomImage(room);
+  const directusImageId = getDirectusImageId(room);
+  const directusImageUrl = directusImageId
+    ? getDirectusAssetUrl(directusImageId)
+    : null;
+  const imageSrc = directusImageUrl ?? getFallbackRoomImage(room);
 
   return (
     <article className="flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">

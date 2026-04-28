@@ -16,6 +16,7 @@ export interface Room {
   available: boolean;
   detail_text: string;
   sort: number | null;
+  image?: string | { id?: string | null } | null;
 }
 
 export interface Page {
@@ -43,6 +44,16 @@ export interface Amenity {
       }
     | null;
   sort: number | null;
+}
+
+export interface GallerySlide {
+  id: string;
+  title?: string | null;
+  image?: string | { id?: string | null } | null;
+  alt_text?: string | null;
+  sort: number | null;
+  active?: boolean | null;
+  category?: string | null;
 }
 
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED";
@@ -74,6 +85,7 @@ export interface BookingRoom {
 
 export interface DirectusSchema {
   rooms: Room[];
+  gallery_slides: GallerySlide[];
   pages: Page[];
   faqs: Faq[];
   amenities: Amenity[];

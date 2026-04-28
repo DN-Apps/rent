@@ -5,6 +5,18 @@ import { readItems } from "@directus/sdk";
 export async function getRooms(): Promise<Room[]> {
   return directus.request(
     readItems("rooms", {
+      fields: [
+        "id",
+        "name",
+        "description",
+        "price_per_night",
+        "price_per_week",
+        "price_per_month",
+        "available",
+        "detail_text",
+        "sort",
+        "image",
+      ],
       sort: ["sort"],
       // Buchungsverfuegbarkeit soll immer den aktuellen Backend-Stand widerspiegeln.
       fetchOptions: { cache: "no-store" },
