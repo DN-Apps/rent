@@ -35,10 +35,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900">
           {t("title")}
         </h1>
-        <p className="text-zinc-500 mt-2">
-          Fragen zur Unterkunft oder zur Verfuegbarkeit? Schreiben Sie uns
-          direkt.
-        </p>
+        <p className="text-zinc-500 mt-2">{t("intro")}</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">

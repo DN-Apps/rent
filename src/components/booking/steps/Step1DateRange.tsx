@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { de, enUS } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { UseFormReturn } from "react-hook-form";
 import type { BookingFormData } from "@/utils/validation";
 import {
@@ -26,6 +27,8 @@ export default function Step1DateRange({
   perRoomBreakdown,
 }: Step1DateRangeProps) {
   const t = useTranslations("booking");
+  const locale = useLocale();
+  const dayPickerLocale = locale === "de" ? de : enUS;
   const periodLabel = formatPeriodLabel(perRoomBreakdown);
   // Merkt sich, welche Grenze (von/bis) der naechste Kalenderklick aktualisiert.
   const [nextPickerTarget, setNextPickerTarget] = useState<"from" | "to">(
@@ -156,6 +159,7 @@ export default function Step1DateRange({
 
       <DayPicker
         mode="single"
+        locale={dayPickerLocale}
         weekStartsOn={1}
         onDayClick={(selectedDate) => {
           const pickedDate = normalizeDate(selectedDate);

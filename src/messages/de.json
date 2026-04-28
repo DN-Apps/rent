@@ -29,6 +29,8 @@
   },
   "rooms": {
     "title": "Unsere Zimmer",
+    "subtitle": "Alle 3 Zimmer sind voll ausgestattet und sofort beziehbar.",
+    "load_error": "Zimmer konnten nicht geladen werden. Bitte versuche es später erneut.",
     "available": "Verfügbar",
     "unavailable": "Belegt",
     "per_night_short": "/ Nacht",
@@ -42,6 +44,8 @@
   },
   "booking": {
     "title": "Zimmer buchen",
+    "intro_4_steps": "Waehle Zeitraum, Zimmer und Kontaktdaten in 4 Schritten.",
+    "load_error": "Zimmer konnten nicht geladen werden.",
     "step1": "Zeitraum wählen",
     "step2": "Zimmer wählen",
     "select_at_least_one_room": "Bitte mindestens ein Zimmer auswählen.",
@@ -103,6 +107,8 @@
   },
   "contact": {
     "title": "Kontakt",
+    "intro": "Fragen zur Unterkunft oder zur Verfuegbarkeit? Schreiben Sie uns direkt.",
+    "faq_empty": "Aktuell sind keine FAQ-Eintraege vorhanden.",
     "name": "Name",
     "email": "E-Mail",
     "phone": "Telefon",
@@ -125,5 +131,23 @@
     "next": "Weiter",
     "from": "ab",
     "per_night": "/ Nacht"
+  },
+  "footer": {
+    "copyright": "© {year} Monteurzimmer. Alle Rechte vorbehalten.",
+    "imprint_link": "Impressum",
+    "imprint_title": "Impressum",
+    "close": "Schließen",
+    "imprint_phone_label": "Telefon",
+    "imprint_email_label": "E-Mail",
+    "imprint_unavailable": "Impressumsdaten sind aktuell nicht verfuegbar.",
+    "imprint_line_1": "Angaben gemäß § 5 TMG",
+    "imprint_line_2": "Mustermann GmbH",
+    "imprint_line_3": "Musterstraße 1",
+    "imprint_line_4": "12345 Musterstadt",
+    "imprint_line_5": "Telefon: +49 123 456789",
+    "imprint_line_6": "E-Mail: info@example.de",
+    "imprint_line_7": "Handelsregister: HRB 12345",
+    "imprint_line_8": "Registergericht: Amtsgericht Musterstadt",
+    "imprint_line_9": "Umsatzsteuer-ID: DE123456789"
   }
 }

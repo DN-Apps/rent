@@ -7,6 +7,7 @@ import { routing } from "@/routing";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import PrivacyBanner from "@/components/ui/PrivacyBanner";
+import { getImprintData } from "@/lib/imprint";
 import "../globals.css";
 
 const inter = Inter({
@@ -41,6 +42,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   const messages = await getMessages();
+  let imprintData: Awaited<ReturnType<typeof getImprintData>> = null;
+
+  try {
+    imprintData = await getImprintData();
+  } catch {
+    imprintData = null;
+  }
 
   return (
     <html
@@ -51,7 +59,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider messages={messages}>
           <Header />
           <div className="flex-1">{children}</div>
-          <Footer />
+          <Footer imprintData={imprintData} />
           <PrivacyBanner />
         </NextIntlClientProvider>
       </body>

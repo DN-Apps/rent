@@ -29,6 +29,8 @@
   },
   "rooms": {
     "title": "Our Rooms",
+    "subtitle": "All 3 rooms are fully equipped and ready for immediate move-in.",
+    "load_error": "Rooms could not be loaded. Please try again later.",
     "available": "Available",
     "unavailable": "Occupied",
     "per_night_short": "/ night",
@@ -42,6 +44,8 @@
   },
   "booking": {
     "title": "Book a Room",
+    "intro_4_steps": "Choose dates, room, and contact details in 4 steps.",
+    "load_error": "Rooms could not be loaded.",
     "step1": "Select Dates",
     "step2": "Choose Room",
     "select_at_least_one_room": "Please select at least one room.",
@@ -103,6 +107,8 @@
   },
   "contact": {
     "title": "Contact",
+    "intro": "Questions about accommodation or availability? Contact us directly.",
+    "faq_empty": "There are currently no FAQ entries available.",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -125,5 +131,23 @@
     "next": "Next",
     "from": "from",
     "per_night": "/ night"
+  },
+  "footer": {
+    "copyright": "© {year} Monteurzimmer. All rights reserved.",
+    "imprint_link": "Legal Notice",
+    "imprint_title": "Legal Notice",
+    "close": "Close",
+    "imprint_phone_label": "Phone",
+    "imprint_email_label": "Email",
+    "imprint_unavailable": "Imprint data is currently unavailable.",
+    "imprint_line_1": "Information pursuant to Section 5 German Telemedia Act (TMG)",
+    "imprint_line_2": "Mustermann GmbH",
+    "imprint_line_3": "Musterstrasse 1",
+    "imprint_line_4": "12345 Musterstadt",
+    "imprint_line_5": "Phone: +49 123 456789",
+    "imprint_line_6": "Email: info@example.de",
+    "imprint_line_7": "Commercial Register: HRB 12345",
+    "imprint_line_8": "Register Court: Local Court Musterstadt",
+    "imprint_line_9": "VAT ID: DE123456789"
   }
 }

@@ -42,13 +42,11 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900">
           {t("title")}
         </h1>
-        <p className="text-zinc-500 mt-2">
-          Waehle Zeitraum, Zimmer und Kontaktdaten in 4 Schritten.
-        </p>
+        <p className="text-zinc-500 mt-2">{t("intro_4_steps")}</p>
       </div>
 
       {rooms.length === 0 ? (
-        <p className="text-zinc-500">Zimmer konnten nicht geladen werden.</p>
+        <p className="text-zinc-500">{t("load_error")}</p>
       ) : (
         <BookingWizard rooms={rooms} preselectedRoomId={searchParams?.room} />
       )}

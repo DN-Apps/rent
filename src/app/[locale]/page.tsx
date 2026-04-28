@@ -112,7 +112,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           {[
             { label: t("pricing_per_night"), price: "20 €" },
-            { label: t("pricing_per_week"), price: "140 €" },
+            { label: t("pricing_per_week"), price: "120 €" },
             { label: t("pricing_per_month"), price: "400 €" },
           ].map((item) => (
             <div

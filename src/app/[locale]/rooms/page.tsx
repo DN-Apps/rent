@@ -41,14 +41,10 @@ export default async function RoomsPage({ params }: RoomsPageProps) {
       <h1 className="text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl mb-2">
         {t("title")}
       </h1>
-      <p className="text-zinc-500 mb-10">
-        Alle 3 Zimmer sind voll ausgestattet und sofort beziehbar.
-      </p>
+      <p className="text-zinc-500 mb-10">{t("subtitle")}</p>
 
       {rooms.length === 0 ? (
-        <p className="text-zinc-500">
-          Zimmer konnten nicht geladen werden. Bitte versuche es später erneut.
-        </p>
+        <p className="text-zinc-500">{t("load_error")}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {rooms.map((room) => (

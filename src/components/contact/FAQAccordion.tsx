@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Faq } from "@/lib/directus";
 
 type FAQAccordionProps = {
@@ -9,13 +10,10 @@ type FAQAccordionProps = {
 
 export default function FAQAccordion({ items }: FAQAccordionProps) {
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null);
+  const t = useTranslations("contact");
 
   if (items.length === 0) {
-    return (
-      <p className="text-sm text-zinc-500">
-        Aktuell sind keine FAQ-Eintraege vorhanden.
-      </p>
-    );
+    return <p className="text-sm text-zinc-500">{t("faq_empty")}</p>;
   }
 
   return (
