@@ -70,13 +70,13 @@ export default async function HomePage({ params }: HomePageProps) {
               href={`/${params.locale}/rooms`}
               className="rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-white hover:bg-zinc-700 transition-colors"
             >
-              Zimmer ansehen
+              {t("cta_view_rooms")}
             </Link>
             <Link
               href={`/${params.locale}/booking`}
               className="rounded-lg border border-zinc-300 px-6 py-3 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
             >
-              Jetzt buchen
+              {t("cta_book_now")}
             </Link>
           </div>
         </div>
@@ -107,13 +107,13 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* Preisübersicht */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-14">
         <h2 className="text-2xl font-bold text-zinc-900 text-center mb-8">
-          Unsere Preise
+          {t("pricing_title")}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
           {[
-            { label: "pro Nacht", price: "20 €" },
-            { label: "pro Woche", price: "140 €" },
-            { label: "pro Monat", price: "400 €" },
+            { label: t("pricing_per_night"), price: "20 €" },
+            { label: t("pricing_per_week"), price: "140 €" },
+            { label: t("pricing_per_month"), price: "400 €" },
           ].map((item) => (
             <div
               key={item.label}
@@ -132,7 +132,7 @@ export default async function HomePage({ params }: HomePageProps) {
           {/* Kontaktinfos */}
           <div>
             <h2 className="text-2xl font-bold text-zinc-900 mb-5">
-              Lage &amp; Anfahrt
+              {t("location_title")}
             </h2>
             <address className="not-italic text-sm text-zinc-600 space-y-2 mb-6">
               <p className="font-semibold text-zinc-900">{CONTACT.name}</p>
@@ -157,17 +157,14 @@ export default async function HomePage({ params }: HomePageProps) {
             {/* Verkehrsanbindung – für Monteure relevante Infos */}
             <div className="rounded-xl bg-white border border-zinc-200 p-4 text-sm text-zinc-700 space-y-2">
               <h3 className="font-semibold text-zinc-900 text-base mb-2">
-                Verkehrsanbindung
+                {t("transport_title")}
               </h3>
-              <p>🛣️ Autobahn Bad Rappenau – kurze Anfahrt</p>
-              <p>🛣️ Autobahn Neckarsulm – kurze Anfahrt</p>
-              <p>🛣️ Autobahn Neuenstadt – kurze Anfahrt</p>
-              <p>🚂 Bahnhof Gundelsheim – 4 Minuten zu Fuß</p>
-              <p>
-                🍕 Bar/Café, Bäcker, italienische Pizzeria, Edeka und Lidl in
-                der Nähe
-              </p>
-              <p>🅿️ Kostenfreie Parkplätze direkt am Haus</p>
+              <p>🛣️ {t("transport_item_1")}</p>
+              <p>🛣️ {t("transport_item_2")}</p>
+              <p>🛣️ {t("transport_item_3")}</p>
+              <p>🚂 {t("transport_item_4")}</p>
+              <p>🍕 {t("transport_item_5")}</p>
+              <p>🅿️ {t("transport_item_6")}</p>
             </div>
           </div>
 
@@ -179,7 +176,7 @@ export default async function HomePage({ params }: HomePageProps) {
                 width="100%"
                 height="100%"
                 loading="lazy"
-                title="Standort auf Karte"
+                title={t("map_iframe_title")}
                 className="w-full h-full border-0"
               />
             </div>

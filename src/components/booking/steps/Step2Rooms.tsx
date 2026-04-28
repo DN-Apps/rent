@@ -54,7 +54,8 @@ export default function Step2Rooms({
                 {room.description}
               </p>
               <p className="mt-3 text-sm font-medium text-zinc-700">
-                {formatBookingCurrency(Number(room.price_per_night))} / Nacht
+                {formatBookingCurrency(Number(room.price_per_night))}{" "}
+                {t("price_per_night_suffix")}
               </p>
               {isUnavailable && (
                 <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">

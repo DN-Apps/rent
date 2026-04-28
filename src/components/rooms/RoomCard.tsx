@@ -75,7 +75,7 @@ export default function RoomCard({ room, locale }: RoomCardProps) {
                 : "bg-red-100 text-red-800"
             }`}
           >
-            {room.available ? "Verfügbar" : "Belegt"}
+            {room.available ? t("available") : t("unavailable")}
           </span>
         </div>
 
@@ -88,9 +88,9 @@ export default function RoomCard({ room, locale }: RoomCardProps) {
         <div className="mt-auto">
           <div className="grid grid-cols-3 divide-x divide-zinc-100 rounded-xl border border-zinc-100 bg-zinc-50 text-center text-sm mb-4">
             {[
-              { label: "/ Nacht", price: room.price_per_night },
-              { label: "/ Woche", price: room.price_per_week },
-              { label: "/ Monat", price: room.price_per_month },
+              { label: t("per_night_short"), price: room.price_per_night },
+              { label: t("per_week_short"), price: room.price_per_week },
+              { label: t("per_month_short"), price: room.price_per_month },
             ].map(({ label, price }) => (
               <div key={label} className="py-3 px-2">
                 <p className="font-bold text-zinc-900 text-base">
