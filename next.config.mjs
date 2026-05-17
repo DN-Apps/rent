@@ -61,6 +61,11 @@ const nextConfig = {
                 pathname: "/assets/**",
             },
             {
+                protocol: "https",
+                hostname: "cms.ned-it.de",
+                pathname: "/assets/**",
+            },
+            {
                 protocol: "http",
                 hostname: "localhost",
                 port: "8055",
@@ -68,6 +73,7 @@ const nextConfig = {
             },
         ],
     },
+
     async headers() {
         return [
             {
