@@ -5,6 +5,7 @@ import type { GallerySlide } from "./directus";
 export interface GallerySlideViewModel {
   src: string;
   alt: string;
+  caption?: string;
 }
 
 function getAssetId(image: GallerySlide["image"]): string | null {
@@ -31,6 +32,7 @@ export async function getGallerySlides(): Promise<GallerySlideViewModel[]> {
         "title",
         "image",
         "alt_text",
+        "caption",
         "sort",
         "active",
         "category",
@@ -53,6 +55,7 @@ export async function getGallerySlides(): Promise<GallerySlideViewModel[]> {
       return {
         src,
         alt: item.alt_text?.trim() || item.title?.trim() || "Galeriebild",
+        caption: item.caption?.trim() || item.title?.trim() || undefined,
       } satisfies GallerySlideViewModel;
     })
     .filter((item): item is GallerySlideViewModel => item !== null);

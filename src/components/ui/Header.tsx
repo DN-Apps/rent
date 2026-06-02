@@ -44,7 +44,7 @@ export default function Header() {
           href={localePath("/")}
           className="text-lg font-bold text-zinc-900 tracking-tight"
         >
-          Monteurzimmer
+          Monteurzimmer Nedic
         </Link>
 
         {/* Desktop-Navigation */}

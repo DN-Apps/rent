@@ -11,6 +11,7 @@ import room3 from "@/images/room3.jpg";
 interface Slide {
   src: string | StaticImageData;
   alt: string;
+  caption?: string;
 }
 
 const DEFAULT_SLIDES: Slide[] = [
@@ -63,6 +64,14 @@ export default function Slideshow({
         />
       ))}
 
+      {slides[current]?.caption && (
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/35 to-transparent px-4 pb-10 pt-12 text-white sm:px-6">
+          <p className="text-sm font-medium sm:text-base">
+            {slides[current].caption}
+          </p>
+        </div>
+      )}
+
       {/* Zurueck / Weiter */}
       <button
         onClick={prev}
@@ -80,7 +89,7 @@ export default function Slideshow({
       </button>
 
       {/* Punkte */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+      <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 flex gap-1.5">
         {slides.map((_, i) => (
           <button
             key={i}

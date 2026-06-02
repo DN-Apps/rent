@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import BookingWizard from "@/components/booking/BookingWizard";
 import { getRooms } from "@/lib/rooms";
 
+export const revalidate = 0;
+
 type BookingPageProps = {
   params: {
     locale: string;
@@ -26,12 +28,15 @@ export async function generateMetadata({
   };
 }
 
-export default async function BookingPage({ searchParams }: BookingPageProps) {
+export default async function BookingPage({
+  params,
+  searchParams,
+}: BookingPageProps) {
   const t = await getTranslations("booking");
 
   let rooms: Awaited<ReturnType<typeof getRooms>> = [];
   try {
-    rooms = await getRooms();
+    rooms = await getRooms(params.locale === "en" ? "en" : "de");
   } catch {
     rooms = [];
   }
