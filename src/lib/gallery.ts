@@ -46,17 +46,19 @@ export async function getGallerySlides(): Promise<GallerySlideViewModel[]> {
   );
 
   return items
-    .map((item) => {
+    .map((item): GallerySlideViewModel | null => {
       const fileId = getAssetId(item.image);
       const src = fileId ? getAssetUrl(fileId) : null;
 
       if (!src) return null;
 
+      const caption = item.caption?.trim() || item.title?.trim() || undefined;
+
       return {
         src,
         alt: item.alt_text?.trim() || item.title?.trim() || "Galeriebild",
-        caption: item.caption?.trim() || item.title?.trim() || undefined,
-      } satisfies GallerySlideViewModel;
+        ...(caption ? { caption } : {}),
+      };
     })
     .filter((item): item is GallerySlideViewModel => item !== null);
 }
