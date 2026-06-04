@@ -8,8 +8,13 @@ import {
 
 export interface Room {
   id: string;
+  locale?: "de" | "en" | null;
   name: string;
   description: string;
+  square_meters: number | null;
+  beds: number | null;
+  additional_info: string | null;
+  image_url?: string | null;
   price_per_night: string;
   price_per_week: string;
   price_per_month: string;
@@ -51,6 +56,7 @@ export interface GallerySlide {
   title?: string | null;
   image?: string | { id?: string | null } | null;
   alt_text?: string | null;
+  caption?: string | null;
   sort: number | null;
   active?: boolean | null;
   category?: string | null;

@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { getRooms } from "@/lib/rooms";
 import RoomCard from "@/components/rooms/RoomCard";
 
+export const revalidate = 0;
+
 type RoomsPageProps = {
   params: {
     locale: string;
@@ -31,7 +33,7 @@ export default async function RoomsPage({ params }: RoomsPageProps) {
 
   let rooms: Awaited<ReturnType<typeof getRooms>> = [];
   try {
-    rooms = await getRooms();
+    rooms = await getRooms(params.locale === "en" ? "en" : "de");
   } catch {
     // Directus nicht verfuegbar – Fehlerzustand anzeigen
   }

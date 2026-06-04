@@ -27,30 +27,15 @@ function getFallbackRoomImage(room: Room): StaticImageData {
   return room1;
 }
 
-function getDirectusImageId(room: Room): string | null {
-  const image = room.image;
-  if (!image) return null;
-  if (typeof image === "string") return image;
-  if (typeof image === "object" && typeof image.id === "string")
-    return image.id;
-  return null;
-}
-
-function getDirectusAssetUrl(fileId: string): string | null {
-  const baseUrl = (
-    process.env.DIRECTUS_ASSET_BASE_URL || process.env.DIRECTUS_URL
-  )?.replace(/\/$/, "");
-  if (!baseUrl) return null;
-  return `${baseUrl}/assets/${fileId}`;
-}
-
 export default function RoomCard({ room, locale }: RoomCardProps) {
   const t = useTranslations("rooms");
-  const directusImageId = getDirectusImageId(room);
-  const directusImageUrl = directusImageId
-    ? getDirectusAssetUrl(directusImageId)
-    : null;
+  const directusImageUrl = room.image_url ?? null;
   const imageSrc = directusImageUrl ?? getFallbackRoomImage(room);
+  const additionalInfoItems =
+    room.additional_info
+      ?.split("|")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0) ?? [];
 
   return (
     <article className="flex flex-col rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
@@ -83,6 +68,36 @@ export default function RoomCard({ room, locale }: RoomCardProps) {
         <p className="text-sm text-zinc-600 leading-relaxed mb-5">
           {room.description}
         </p>
+
+        <div className="mb-5 space-y-2 text-sm text-zinc-700">
+          {(room.square_meters !== null || room.beds !== null) && (
+            <div className="flex flex-wrap gap-2">
+              {room.square_meters !== null && (
+                <span className="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
+                  {t("square_meters", { count: room.square_meters })}
+                </span>
+              )}
+              {room.beds !== null && (
+                <span className="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700">
+                  {t("beds", { count: room.beds })}
+                </span>
+              )}
+            </div>
+          )}
+
+          {additionalInfoItems.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {additionalInfoItems.map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Preistabelle */}
         <div className="mt-auto">

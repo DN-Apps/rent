@@ -38,6 +38,8 @@
     "per_month_short": "/ month",
     "per_night": "per night",
     "book_now": "Book Now",
+    "square_meters": "{count} sqm",
+    "beds": "{count} {count, plural, one {bed} other {beds}}",
     "guests": "Guests",
     "max_guests": "Max. {count} {count, plural, one {guest} other {guests}}",
     "seo_description": "See all available rooms including amenities, pricing overview, and current availability status."
@@ -89,6 +91,8 @@
     "company": "Company (optional)",
     "invoice_address": "Invoice Address (if different)",
     "number_of_guests": "Number of Guests",
+    "room_square_meters": "{count} sqm",
+    "room_beds": "{count} {count, plural, one {bed} other {beds}}",
     "check_in": "Check-in",
     "check_out": "Check-out",
     "guest_name": "Full Name",
@@ -133,7 +137,7 @@
     "per_night": "/ night"
   },
   "footer": {
-    "copyright": "© {year} Monteurzimmer. All rights reserved.",
+    "copyright": "© {year} Monteurzimmer Nedic. All rights reserved.",
     "imprint_link": "Legal Notice",
     "imprint_title": "Legal Notice",
     "close": "Close",

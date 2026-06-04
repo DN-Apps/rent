@@ -6,7 +6,7 @@
     "contact": "Kontakt"
   },
   "home": {
-    "title": "Monteurzimmer – Komfortabel & Günstig",
+    "title": "Monteurzimmer Nedic – Komfortabel & Günstig",
     "subtitle": "3 voll ausgestattete Zimmer für Monteure, Handwerker und Bauarbeiter.",
     "cta_view_rooms": "Zimmer ansehen",
     "cta_book_now": "Jetzt buchen",
@@ -38,6 +38,8 @@
     "per_month_short": "/ Monat",
     "per_night": "pro Nacht",
     "book_now": "Jetzt buchen",
+    "square_meters": "{count} m²",
+    "beds": "{count} {count, plural, one {Bett} other {Betten}}",
     "guests": "Gäste",
     "max_guests": "Max. {count} {count, plural, one {Gast} other {Gäste}}",
     "seo_description": "Alle verfügbaren Zimmer mit Ausstattung, Preisen und Verfügbarkeitsstatus auf einen Blick."
@@ -89,6 +91,8 @@
     "company": "Firma (optional)",
     "invoice_address": "Rechnungsadresse (falls abweichend)",
     "number_of_guests": "Anzahl der Gäste",
+    "room_square_meters": "{count} m²",
+    "room_beds": "{count} {count, plural, one {Bett} other {Betten}}",
     "check_in": "Anreise",
     "check_out": "Abreise",
     "guest_name": "Vor- und Nachname",
@@ -133,7 +137,7 @@
     "per_night": "/ Nacht"
   },
   "footer": {
-    "copyright": "© {year} Monteurzimmer. Alle Rechte vorbehalten.",
+    "copyright": "© {year} Monteurzimmer Nedic. Alle Rechte vorbehalten.",
     "imprint_link": "Impressum",
     "imprint_title": "Impressum",
     "close": "Schließen",
