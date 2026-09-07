@@ -25,6 +25,42 @@ export type ActivePrompt = {
   version: number;
 };
 
+export type MissingContractDetail = {
+  key: string;
+  label: string;
+};
+
+export const missingDetailPlaceholder =
+  "[NOCH ZU ERGÄNZEN UND RECHTLICH ZU PRÜFEN]";
+
+export function getMissingContractDetails(
+  data: MietvertragApiData,
+): MissingContractDetail[] {
+  const missingDetails: MissingContractDetail[] = [
+    { key: "zahlungsfaelligkeit", label: "Fälligkeit und Zahlungsweise" },
+    { key: "uebergabedatum", label: "Übergabedatum" },
+    { key: "schluesselanzahl", label: "Anzahl der übergebenen Schlüssel" },
+    { key: "hausordnung", label: "Hausordnung" },
+    { key: "zusatzvereinbarungen", label: "Weitere Zusatzvereinbarungen" },
+  ];
+
+  if (data.vertragstyp === "STAFFEL") {
+    missingDetails.push({
+      key: "staffelmieten",
+      label: "Staffelbeträge und Zeitpunkte der Mieterhöhungen",
+    });
+  }
+
+  if (data.vertragstyp === "INDEX") {
+    missingDetails.push({
+      key: "indexvereinbarung",
+      label: "Konkrete Indexvereinbarung und Berechnungsgrundlage",
+    });
+  }
+
+  return missingDetails;
+}
+
 export async function getActiveVertragPrompt(): Promise<ActivePrompt | null> {
   try {
     const templates = await directus.request(
@@ -82,6 +118,11 @@ export function buildVertragstextPrompt(
   data: MietvertragApiData,
   instructions = localPromptInstructions,
 ): string {
+  const missingDetails = getMissingContractDetails(data);
+  const missingDetailsText = missingDetails
+    .map((detail) => `- ${detail.label}: ${missingDetailPlaceholder}`)
+    .join("\n");
+
   return `${instructions}
 
 EINGABEDATEN:
@@ -100,5 +141,10 @@ Betriebskosten: ${(data.nebenkosten_cent / 100).toFixed(2)} EUR
 Kaution: ${(data.kaution_cent / 100).toFixed(2)} EUR
 Mietbeginn: ${data.mietbeginn}
 Laufzeit: ${data.laufzeit_monate} Monate
+
+SERVERSEITIG ERKANNTE OFFENE ANGABEN:
+${missingDetailsText}
+
+Verwende für jeden offenen Punkt die angegebene Markierung im passenden Abschnitt.
 `;
 }

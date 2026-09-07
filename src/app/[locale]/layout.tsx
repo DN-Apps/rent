@@ -8,7 +8,6 @@ import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import PrivacyBanner from "@/components/ui/PrivacyBanner";
 import { getImprintData } from "@/lib/imprint";
-import "../globals.css";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -51,18 +50,16 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   return (
-    <html
+    <div
       lang={locale}
-      className={`${inter.variable} ${robotoMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${robotoMono.variable} flex min-h-full flex-1 flex-col`}
     >
-      <body className="min-h-full flex flex-col">
-        <NextIntlClientProvider messages={messages}>
-          <Header />
-          <div className="flex-1">{children}</div>
-          <Footer imprintData={imprintData} />
-          <PrivacyBanner />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+      <NextIntlClientProvider messages={messages}>
+        <Header />
+        <div className="flex-1">{children}</div>
+        <Footer imprintData={imprintData} />
+        <PrivacyBanner />
+      </NextIntlClientProvider>
+    </div>
   );
 }

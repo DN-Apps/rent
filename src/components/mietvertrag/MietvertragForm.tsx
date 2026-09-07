@@ -6,6 +6,8 @@ type MietvertragResult = {
   id: string | number | null;
   status: string;
   vertragstext: string | null;
+  generation_source: string;
+  warning?: string;
 };
 
 type FormState = {
@@ -91,6 +93,8 @@ export default function MietvertragForm() {
         id?: string | number | null;
         status?: string;
         vertragstext?: string | null;
+        generation_source?: string;
+        warning?: string;
       };
 
       if (!response.ok || !data.success) {
@@ -101,6 +105,8 @@ export default function MietvertragForm() {
         id: data.id ?? null,
         status: data.status ?? "DRAFT",
         vertragstext: data.vertragstext ?? null,
+        generation_source: data.generation_source ?? "unknown",
+        warning: data.warning,
       });
     } catch (submitError) {
       setError(
@@ -357,6 +363,11 @@ export default function MietvertragForm() {
             <p className="mt-3 text-sm text-zinc-600">
               Gespeichert als Entwurf, ID: <strong>{result.id ?? "nicht verfügbar"}</strong>
             </p>
+            {result.warning && (
+              <p className="mt-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                {result.warning}
+              </p>
+            )}
             <pre className="mt-5 max-h-[34rem] overflow-auto whitespace-pre-wrap rounded border border-zinc-200 bg-white p-4 text-sm leading-6 text-zinc-800">
               {result.vertragstext}
             </pre>

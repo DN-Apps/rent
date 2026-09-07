@@ -3,21 +3,46 @@ import { GoogleGenAI } from "@google/genai";
 import type { MietvertragApiData } from "@/utils/validation";
 import {
   buildVertragstextPrompt,
+  getMissingContractDetails,
   getActiveVertragPrompt,
+  missingDetailPlaceholder,
   requiredContractHeadings,
 } from "@/lib/ai-prompts";
 
 export type GeneratedVertragstext = {
   text: string;
   promptVersion: number;
+  source: "mock" | "gemini" | "anthropic" | "local-fallback";
 };
 
-function isCompleteContractDraft(text: string): boolean {
+function isGeminiUnavailable(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /503|unavailable|high demand|overloaded|temporarily/i.test(message);
+}
+
+function isCompleteContractDraft(
+  text: string,
+  data: MietvertragApiData,
+): boolean {
   const headingCount = requiredContractHeadings.filter((heading) =>
     text.includes(heading),
   ).length;
+  const requiredValuesPresent = [
+    data.vermieter_name,
+    data.mieter_name,
+    data.mietobjekt_adresse,
+    data.mietbeginn,
+  ].every((value) => text.includes(value));
+  const missingDetailsMarked = getMissingContractDetails(data).every((detail) =>
+    text.includes(detail.label) && text.includes(missingDetailPlaceholder),
+  );
 
-  return text.length >= 1800 && headingCount >= 12;
+  return (
+    text.length >= 1800 &&
+    headingCount >= 12 &&
+    requiredValuesPresent &&
+    missingDetailsMarked
+  );
 }
 
 function generateMockVertragstext(data: MietvertragApiData): string {
@@ -46,6 +71,9 @@ function generateMockVertragstext(data: MietvertragApiData): string {
       "Die konkrete Indexvereinbarung und die Bezugnahme auf den Verbraucherpreisindex sind vor Unterzeichnung zu ergänzen und rechtlich zu prüfen.",
     UNTERMIETE: `Dies ist ein Untermietvertrag. Hauptmieter: ${data.hauptmieter_name}. Zustimmung des Vermieters liegt laut Eingabe vor: ${data.vermieter_zustimmung ? "ja" : "nein"}.`,
   }[data.vertragstyp];
+  const missingDetails = getMissingContractDetails(data)
+    .map((detail) => `- ${detail.label}: ${missingDetailPlaceholder}`)
+    .join("\n");
 
   return `ENTWURF - keine Rechtsberatung
 
@@ -85,6 +113,9 @@ Die Kuendigung und die Abwicklung des Vertragsendes richten sich nach den gesetz
 9. Uebergabe und sonstige Vereinbarungen
 Uebergabedatum, Schluesselanzahl, Hausordnung und weitere Zusatzvereinbarungen sind vor Unterzeichnung zu ergaenzen.
 
+10. Offene Angaben
+${missingDetails}
+
 Dieser automatisch erzeugte Text ist ein technischer Entwurf und muss vor einer Verwendung vollstaendig geprueft und rechtlich bewertet werden.`;
 }
 
@@ -97,6 +128,7 @@ export async function generateVertragstext(
     return {
       text: generateMockVertragstext(data),
       promptVersion: 0,
+      source: "mock",
     };
   }
 
@@ -110,46 +142,62 @@ export async function generateVertragstext(
       throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const gemini = new GoogleGenAI({ apiKey });
-    const response = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
-      contents: prompt,
-      config: {
-        maxOutputTokens: 3000,
-        temperature: 0.2,
-      },
-    });
-
-    const text = response.text?.trim();
-    if (!text) {
-      throw new Error("Gemini returned an empty contract draft");
-    }
-
-    if (!isCompleteContractDraft(text)) {
-      const retryResponse = await gemini.models.generateContent({
+    try {
+      const gemini = new GoogleGenAI({ apiKey });
+      const response = await gemini.models.generateContent({
         model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
-        contents: `${prompt}
+        contents: prompt,
+        config: {
+          maxOutputTokens: 3000,
+          temperature: 0.2,
+        },
+      });
 
-DEIN ERSTER ENTWURF WAR ZU KURZ. ERSTELLE IHN ERNEUT UND HALTE DIESE STRUKTUR EXAKT EIN.
+      const text = response.text?.trim();
+      if (!text) {
+        throw new Error("Gemini returned an empty contract draft");
+      }
+
+      if (!isCompleteContractDraft(text, data)) {
+        const retryResponse = await gemini.models.generateContent({
+          model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+          contents: `${prompt}
+
+DEIN ERSTER ENTWURF WAR ZU KURZ ODER UNVOLLSTAENDIG. ERSTELLE IHN ERNEUT.
 Verwende jede der folgenden 15 Überschriften wortgleich und in dieser Reihenfolge:
 ${requiredContractHeadings.join("\n")}
 Schreibe unter jede Überschrift mindestens einen vollständigen Absatz.
 Die fertige Ausgabe muss mindestens 1800 Zeichen enthalten. Gib keine Zusammenfassung aus.`,
-        config: {
-          maxOutputTokens: 5000,
-          temperature: 0.1,
-        },
-      });
+          config: {
+            maxOutputTokens: 5000,
+            temperature: 0.1,
+          },
+        });
 
-      const retryText = retryResponse.text?.trim();
-      if (!retryText) {
-        throw new Error("Gemini returned an empty contract draft on retry");
+        const retryText = retryResponse.text?.trim();
+        if (!retryText || !isCompleteContractDraft(retryText, data)) {
+          return {
+            text: generateMockVertragstext(data),
+            promptVersion,
+            source: "local-fallback",
+          };
+        }
+
+        return { text: retryText, promptVersion, source: "gemini" };
       }
 
-      return { text: retryText, promptVersion };
-    }
+      return { text, promptVersion, source: "gemini" };
+    } catch (error) {
+      if (isGeminiUnavailable(error)) {
+        return {
+          text: generateMockVertragstext(data),
+          promptVersion,
+          source: "local-fallback",
+        };
+      }
 
-    return { text, promptVersion };
+      throw error;
+    }
   }
 
   const anthropic = new Anthropic({
@@ -167,5 +215,5 @@ Die fertige Ausgabe muss mindestens 1800 Zeichen enthalten. Gib keine Zusammenfa
       ? msg.content[0].text
       : "";
 
-  return { text: text.trim(), promptVersion };
+  return { text: text.trim(), promptVersion, source: "anthropic" };
 }

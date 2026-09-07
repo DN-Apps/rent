@@ -178,6 +178,7 @@ export interface Mietvertrag {
   status: MietvertragStatus;
   vertragstext: string | null;
   prompt_version: number | null;
+  generation_source: string | null;
   created_at?: string;
   updated_at?: string;
 }

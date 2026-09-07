@@ -5,6 +5,27 @@ import { parseAndValidateJson } from "@/lib/api-validation";
 import { apiError, apiSuccess } from "@/lib/api-response";
 import { mietvertragApiSchema } from "@/utils/validation";
 import { generateVertragstext } from "@/lib/ai-assist";
+import { reviewVertragstext } from "@/lib/contract-review";
+
+function getProviderErrorResponse(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (/429|RESOURCE_EXHAUSTED|quota|current quota/i.test(message)) {
+    return apiError(
+      "Das kostenlose Gemini-Kontingent ist aktuell ausgeschöpft. Bitte später erneut versuchen oder den lokalen Mock-Modus verwenden.",
+      429,
+    );
+  }
+
+  if (/503|UNAVAILABLE|high demand|overloaded|temporarily/i.test(message)) {
+    return apiError(
+      "Der Gemini-Dienst ist momentan nicht verfügbar. Bitte später erneut versuchen.",
+      503,
+    );
+  }
+
+  return null;
+}
 
 
 export async function POST(req: NextRequest) {
@@ -22,6 +43,14 @@ export async function POST(req: NextRequest) {
 
   try {
     const generated = await generateVertragstext(payload);
+    const review = await reviewVertragstext(payload, generated.text);
+
+    if (!review.valid) {
+      return apiError(
+        `Der Entwurf wurde nicht gespeichert: ${review.issues.join(" ")}`,
+        422,
+      );
+    }
 
     const created = await directus.request(
       createItem("mietvertraege", {
@@ -44,6 +73,7 @@ export async function POST(req: NextRequest) {
         status: payload.status ?? "DRAFT",
         vertragstext: generated.text,
         prompt_version: generated.promptVersion,
+        generation_source: generated.source,
       }),
     );
 
@@ -68,8 +98,18 @@ export async function POST(req: NextRequest) {
       status: payload.status ?? "DRAFT",
       vertragstext: generated.text,
       prompt_version: generated.promptVersion,
+      generation_source: generated.source,
+      warning:
+        generated.source === "local-fallback"
+          ? "Gemini war vorübergehend nicht verfügbar. Es wurde ein lokaler Entwurf erzeugt."
+          : undefined,
     });
   } catch (error) {
+    const providerResponse = getProviderErrorResponse(error);
+    if (providerResponse) {
+      return providerResponse;
+    }
+
     const message =
       error instanceof Error ? error.message : "Contract could not be saved";
 
