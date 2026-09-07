@@ -89,6 +89,18 @@ export interface BookingRoom {
   number_of_guests: number;
 }
 
+export interface AiPromptTemplate {
+  id: string;
+  prompt_key: string;
+  version: number;
+  system_prompt: string;
+  active: boolean;
+  model_hint?: string | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DirectusSchema {
   rooms: Room[];
   gallery_slides: GallerySlide[];
@@ -97,6 +109,8 @@ export interface DirectusSchema {
   amenities: Amenity[];
   bookings: Booking[];
   booking_rooms: BookingRoom[];
+  mietvertraege: Mietvertrag[];
+  ai_prompt_templates: AiPromptTemplate[];
 }
 
 export type AppDirectusClient = DirectusClient<DirectusSchema> &
@@ -127,3 +141,44 @@ export const directus = new Proxy({} as AppDirectusClient, {
     return (getDirectus() as unknown as Record<string | symbol, unknown>)[prop];
   },
 });
+
+
+export type MietvertragStatus = 
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "APPROVED"
+  | "REJECTED";
+
+export type MietvertragTyp =
+  | "UNBEFRISTET"
+  | "BEFRISTET"
+  | "STAFFEL"
+  | "INDEX"
+  | "UNTERMIETE";
+
+
+export interface Mietvertrag {
+  id: string;
+  tenant_id: string;
+  vermieter_name: string;
+  vermieter_adresse: string;
+  mieter_name: string;
+  mieter_adresse: string;
+  mietobjekt_adresse: string;
+  miethoehe_cent: number;
+  wohnflaeche_qm: number;
+  nebenkosten_cent: number;
+  kaution_cent: number;
+  vertragstyp: MietvertragTyp;
+  befristungsgrund: string | null;
+  hauptmieter_name: string | null;
+  vermieter_zustimmung: boolean;
+  mietbeginn: string;
+  laufzeit_monate: number;
+  status: MietvertragStatus;
+  vertragstext: string | null;
+  prompt_version: number | null;
+  created_at?: string;
+  updated_at?: string;
+}
+

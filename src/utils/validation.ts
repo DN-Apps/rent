@@ -107,3 +107,49 @@ export type BookingRoomFormData = z.infer<typeof bookingRoomSchema>;
 export type AddressFormData = z.infer<typeof addressSchema>;
 export type ContactFormInputData = z.input<typeof contactSchema>;
 export type ContactFormData = z.infer<typeof contactSchema>;
+export type MietvertragApiData = z.infer<typeof mietvertragApiSchema>;
+
+export const mietvertragApiSchema = z.object({
+  tenant_id: z.string().min(1),
+  vermieter_name: z.string().min(1),
+  vermieter_adresse: z.string().min(1),
+  mieter_name: z.string().min(1),
+  mieter_adresse: z.string().min(1),
+  mietobjekt_adresse: z.string().min(1),
+  miethoehe_cent: z.number().int().min(0),
+  wohnflaeche_qm: z.number().finite().positive(),
+  nebenkosten_cent: z.number().int().min(0),
+  kaution_cent: z.number().int().min(0),
+  vertragstyp: z.enum([
+    "UNBEFRISTET",
+    "BEFRISTET",
+    "STAFFEL",
+    "INDEX",
+    "UNTERMIETE",
+  ]),
+  befristungsgrund: z.string().trim().optional().default(""),
+  hauptmieter_name: z.string().trim().optional().default(""),
+  vermieter_zustimmung: z.boolean().default(false),
+  mietbeginn: z.string().min(1),
+  laufzeit_monate: z.number().int().min(1),
+  status: z.enum(["DRAFT", "PENDING_REVIEW", "APPROVED", "REJECTED"]).optional(),
+}).superRefine((data, context) => {
+  if (data.vertragstyp === "BEFRISTET" && !data.befristungsgrund) {
+    context.addIssue({
+      code: "custom",
+      path: ["befristungsgrund"],
+      message: "Ein Befristungsgrund ist erforderlich.",
+    });
+  }
+
+  if (data.vertragstyp === "UNTERMIETE" && !data.hauptmieter_name) {
+    context.addIssue({
+      code: "custom",
+      path: ["hauptmieter_name"],
+      message: "Der Name des Hauptmieters ist erforderlich.",
+    });
+  }
+});
+
+
+
