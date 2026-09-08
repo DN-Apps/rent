@@ -105,8 +105,11 @@ ${vertragstext}
       return deterministicReview;
     }
 
+    // Models sometimes wrap JSON in a markdown code fence despite the plain-JSON instruction.
+    const jsonText = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+
     try {
-      const parsed = JSON.parse(raw) as {
+      const parsed = JSON.parse(jsonText) as {
         valid?: boolean;
         issues?: unknown;
       };
@@ -122,11 +125,9 @@ ${vertragstext}
         source: "gemini",
       };
     } catch {
-      return {
-        valid: false,
-        issues: ["Die KI-Prüfung lieferte kein gültiges Prüf-JSON."],
-        source: "gemini",
-      };
+      // Review response wasn't parseable JSON: that's a Gemini output problem, not a finding about the
+      // contract, so defer to the deterministic result instead of blocking the save.
+      return deterministicReview;
     }
   } catch (error) {
     // Gemini review unavailable or over quota: don't block saving, defer to the deterministic result.
