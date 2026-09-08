@@ -41,7 +41,8 @@ function reviewDeterministically(
     }
   }
 
-  if (!vertragstext.includes("ENTWURF")) {
+  // Case-insensitive: no prompt actually mandates the literal uppercase "ENTWURF" string.
+  if (!/entwurf/i.test(vertragstext)) {
     issues.push("Der Entwurfshinweis fehlt.");
   }
 
