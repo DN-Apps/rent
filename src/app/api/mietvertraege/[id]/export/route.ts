@@ -37,6 +37,7 @@ export async function GET(
         ],
       }),
       new Paragraph({ text: "" }),
+      // docx has no plain-text block, so each source line becomes its own paragraph to preserve line breaks.
       ...mietvertrag.vertragstext.split(/\r?\n/).map(
         (line) => new Paragraph({ text: line }),
       ),

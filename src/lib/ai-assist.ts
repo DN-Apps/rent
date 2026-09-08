@@ -1,13 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenAI } from "@google/genai";
 import type { MietvertragApiData } from "@/utils/validation";
 import {
   buildVertragstextPrompt,
+  formatMissingContractDetails,
   getMissingContractDetails,
   getActiveVertragPrompt,
   missingDetailPlaceholder,
   requiredContractHeadings,
 } from "@/lib/ai-prompts";
+import {
+  createGeminiClient,
+  getGeminiModel,
+  isGeminiOverloaded,
+  requireGeminiApiKey,
+} from "@/lib/gemini";
 
 export type GeneratedVertragstext = {
   text: string;
@@ -15,11 +21,7 @@ export type GeneratedVertragstext = {
   source: "mock" | "gemini" | "anthropic" | "local-fallback";
 };
 
-function isGeminiUnavailable(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /503|unavailable|high demand|overloaded|temporarily/i.test(message);
-}
-
+// Verifies the draft actually covers the required structure instead of trusting the model's word count alone.
 function isCompleteContractDraft(
   text: string,
   data: MietvertragApiData,
@@ -71,9 +73,7 @@ function generateMockVertragstext(data: MietvertragApiData): string {
       "Die konkrete Indexvereinbarung und die Bezugnahme auf den Verbraucherpreisindex sind vor Unterzeichnung zu ergänzen und rechtlich zu prüfen.",
     UNTERMIETE: `Dies ist ein Untermietvertrag. Hauptmieter: ${data.hauptmieter_name}. Zustimmung des Vermieters liegt laut Eingabe vor: ${data.vermieter_zustimmung ? "ja" : "nein"}.`,
   }[data.vertragstyp];
-  const missingDetails = getMissingContractDetails(data)
-    .map((detail) => `- ${detail.label}: ${missingDetailPlaceholder}`)
-    .join("\n");
+  const missingDetails = formatMissingContractDetails(data);
 
   return `ENTWURF - keine Rechtsberatung
 
@@ -124,6 +124,7 @@ export async function generateVertragstext(
 ): Promise<GeneratedVertragstext> {
   const mode = process.env.AI_ASSIST_MODE ?? "mock";
 
+  // No API key or Directus dependency: deterministic local draft for cost-free development.
   if (mode === "mock") {
     return {
       text: generateMockVertragstext(data),
@@ -132,20 +133,18 @@ export async function generateVertragstext(
     };
   }
 
+  // Directus supplies the editable prompt; version 0 means the local fallback prompt was used instead.
   const activePrompt = await getActiveVertragPrompt();
   const prompt = buildVertragstextPrompt(data, activePrompt?.prompt);
   const promptVersion = activePrompt?.version ?? 0;
 
   if (mode === "gemini") {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
-    }
+    const apiKey = requireGeminiApiKey();
 
     try {
-      const gemini = new GoogleGenAI({ apiKey });
+      const gemini = createGeminiClient(apiKey);
       const response = await gemini.models.generateContent({
-        model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+        model: getGeminiModel(),
         contents: prompt,
         config: {
           maxOutputTokens: 3000,
@@ -158,9 +157,10 @@ export async function generateVertragstext(
         throw new Error("Gemini returned an empty contract draft");
       }
 
+      // First draft too short/incomplete: ask Gemini once more with a stricter instruction before giving up.
       if (!isCompleteContractDraft(text, data)) {
         const retryResponse = await gemini.models.generateContent({
-          model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+          model: getGeminiModel(),
           contents: `${prompt}
 
 DEIN ERSTER ENTWURF WAR ZU KURZ ODER UNVOLLSTAENDIG. ERSTELLE IHN ERNEUT.
@@ -175,6 +175,7 @@ Die fertige Ausgabe muss mindestens 1800 Zeichen enthalten. Gib keine Zusammenfa
         });
 
         const retryText = retryResponse.text?.trim();
+        // Retry still unusable: fall back to the local draft rather than saving a broken contract.
         if (!retryText || !isCompleteContractDraft(retryText, data)) {
           return {
             text: generateMockVertragstext(data),
@@ -188,7 +189,8 @@ Die fertige Ausgabe muss mindestens 1800 Zeichen enthalten. Gib keine Zusammenfa
 
       return { text, promptVersion, source: "gemini" };
     } catch (error) {
-      if (isGeminiUnavailable(error)) {
+      // Temporary Gemini outage: keep the request usable via the local draft instead of failing the whole request.
+      if (isGeminiOverloaded(error)) {
         return {
           text: generateMockVertragstext(data),
           promptVersion,
@@ -200,6 +202,7 @@ Die fertige Ausgabe muss mindestens 1800 Zeichen enthalten. Gib keine Zusammenfa
     }
   }
 
+  // Anthropic has no retry/quality gate yet; used mainly as a second provider option.
   const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
   });

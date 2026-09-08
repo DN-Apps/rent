@@ -1,6 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
 import type { MietvertragApiData } from "@/utils/validation";
 import { getMissingContractDetails, missingDetailPlaceholder } from "@/lib/ai-prompts";
+import {
+  createGeminiClient,
+  getGeminiModel,
+  isGeminiOverloaded,
+  isGeminiQuotaExceeded,
+} from "@/lib/gemini";
 
 export type ContractReviewResult = {
   valid: boolean;
@@ -8,11 +13,7 @@ export type ContractReviewResult = {
   source: "deterministic" | "gemini";
 };
 
-function isGeminiUnavailable(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return /429|503|unavailable|high demand|overloaded|temporarily/i.test(message);
-}
-
+// Checks the values a template can't reliably self-report: presence of core data and required placeholders.
 function reviewDeterministically(
   data: MietvertragApiData,
   vertragstext: string,
@@ -57,6 +58,7 @@ export async function reviewVertragstext(
 ): Promise<ContractReviewResult> {
   const deterministicReview = reviewDeterministically(data, vertragstext);
 
+  // Only escalate to the paid Gemini review when the cheap local check already passed and Gemini is in use.
   if (
     !deterministicReview.valid ||
     process.env.AI_ASSIST_MODE !== "gemini"
@@ -70,9 +72,9 @@ export async function reviewVertragstext(
   }
 
   try {
-    const gemini = new GoogleGenAI({ apiKey });
+    const gemini = createGeminiClient(apiKey);
     const response = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL ?? "gemini-2.0-flash",
+      model: getGeminiModel(),
       contents: `
 Pruefe den folgenden Mietvertragsentwurf gegen die Eingabedaten.
 Antworte ausschließlich als JSON in diesem Format:
@@ -126,7 +128,8 @@ ${vertragstext}
       };
     }
   } catch (error) {
-    if (isGeminiUnavailable(error)) {
+    // Gemini review unavailable or over quota: don't block saving, defer to the deterministic result.
+    if (isGeminiOverloaded(error) || isGeminiQuotaExceeded(error)) {
       return deterministicReview;
     }
 

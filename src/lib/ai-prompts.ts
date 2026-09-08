@@ -61,6 +61,14 @@ export function getMissingContractDetails(
   return missingDetails;
 }
 
+// Shared bullet-list rendering so the AI prompt and the local mock draft mark the same gaps identically.
+export function formatMissingContractDetails(data: MietvertragApiData): string {
+  return getMissingContractDetails(data)
+    .map((detail) => `- ${detail.label}: ${missingDetailPlaceholder}`)
+    .join("\n");
+}
+
+// Returns null (triggering the local prompt fallback) on any Directus error or missing/inactive template.
 export async function getActiveVertragPrompt(): Promise<ActivePrompt | null> {
   try {
     const templates = await directus.request(
@@ -118,10 +126,7 @@ export function buildVertragstextPrompt(
   data: MietvertragApiData,
   instructions = localPromptInstructions,
 ): string {
-  const missingDetails = getMissingContractDetails(data);
-  const missingDetailsText = missingDetails
-    .map((detail) => `- ${detail.label}: ${missingDetailPlaceholder}`)
-    .join("\n");
+  const missingDetailsText = formatMissingContractDetails(data);
 
   return `${instructions}
 
